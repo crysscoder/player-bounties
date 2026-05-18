@@ -122,13 +122,20 @@ public final class PlayerBountiesPlugin extends JavaPlugin implements Listener, 
             return;
         }
 
-        if (amount <= 0 || amount > MAX_BOUNTY || !takeDiamonds(player, amount)) {
+        Bounty current = bounties.get(target.getUniqueId());
+        int currentAmount = current == null ? 0 : current.amount();
+
+        if (amount <= 0 || amount > MAX_BOUNTY || currentAmount >= MAX_BOUNTY || amount > MAX_BOUNTY - currentAmount) {
+            send(player, "bad-number");
+            return;
+        }
+
+        if (!takeDiamonds(player, amount)) {
             send(player, "no-diamonds");
             return;
         }
 
-        Bounty current = bounties.get(target.getUniqueId());
-        int total = Math.min(MAX_BOUNTY, amount + (current == null ? 0 : current.amount()));
+        int total = amount + currentAmount;
         bounties.put(target.getUniqueId(), new Bounty(target.getName(), total));
         saveBounties();
         send(player, "added", Map.of("target", target.getName(), "amount", String.valueOf(total)));
