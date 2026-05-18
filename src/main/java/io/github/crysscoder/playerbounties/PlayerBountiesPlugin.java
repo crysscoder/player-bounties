@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class PlayerBountiesPlugin extends JavaPlugin implements Listener, CommandExecutor, TabCompleter {
+    private static final int MAX_BOUNTY = 2304;
     private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacyAmpersand();
     private final Map<UUID, Bounty> bounties = new HashMap<>();
 
@@ -121,13 +122,13 @@ public final class PlayerBountiesPlugin extends JavaPlugin implements Listener, 
             return;
         }
 
-        if (amount <= 0 || !takeDiamonds(player, amount)) {
+        if (amount <= 0 || amount > MAX_BOUNTY || !takeDiamonds(player, amount)) {
             send(player, "no-diamonds");
             return;
         }
 
         Bounty current = bounties.get(target.getUniqueId());
-        int total = amount + (current == null ? 0 : current.amount());
+        int total = Math.min(MAX_BOUNTY, amount + (current == null ? 0 : current.amount()));
         bounties.put(target.getUniqueId(), new Bounty(target.getName(), total));
         saveBounties();
         send(player, "added", Map.of("target", target.getName(), "amount", String.valueOf(total)));
@@ -167,7 +168,13 @@ public final class PlayerBountiesPlugin extends JavaPlugin implements Listener, 
     }
 
     private void giveDiamonds(Player player, int amount) {
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND, amount)).values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        int left = amount;
+
+        while (left > 0) {
+            int stack = Math.min(64, left);
+            player.getInventory().addItem(new ItemStack(Material.DIAMOND, stack)).values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+            left -= stack;
+        }
     }
 
     private void loadBounties() {
@@ -177,7 +184,11 @@ public final class PlayerBountiesPlugin extends JavaPlugin implements Listener, 
         }
         for (String key : getConfig().getConfigurationSection("bounties").getKeys(false)) {
             String path = "bounties." + key;
-            bounties.put(UUID.fromString(key), new Bounty(getConfig().getString(path + ".name", key), getConfig().getInt(path + ".amount")));
+            try {
+                int amount = Math.max(1, Math.min(MAX_BOUNTY, getConfig().getInt(path + ".amount")));
+                bounties.put(UUID.fromString(key), new Bounty(getConfig().getString(path + ".name", key), amount));
+            } catch (IllegalArgumentException ignored) {
+            }
         }
     }
 
