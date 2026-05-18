@@ -1,0 +1,19 @@
+name: PlayerBounties
+version: ${version}
+main: io.github.crysscoder.playerbounties.PlayerBountiesPlugin
+api-version: '1.21'
+author: crysscoder
+description: Diamond bounties for player kills.
+commands:
+  bounty:
+    description: Manage player bounties.
+    usage: /bounty
+    aliases:
+      - bounties
+permissions:
+  playerbounties.use:
+    description: Use bounties.
+    default: true
+  playerbounties.reload:
+    description: Reload PlayerBounties config.
+    default: op

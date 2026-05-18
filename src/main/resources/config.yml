@@ -1,0 +1,13 @@
+messages:
+  prefix: "&7[&aBounty&7]"
+  only-player: "%prefix% &fКоманда доступна только игроку."
+  no-permission: "%prefix% &fНет прав."
+  reloaded: "%prefix% &fКонфиг перезагружен."
+  usage: "%prefix% &fИспользуй: /bounty set <player> <diamonds>."
+  added: "%prefix% &fНаграда на &a%target%&f: &a%amount% алм.&f."
+  list-empty: "%prefix% &fНаград пока нет."
+  list-line: "%prefix% &a%target%&f: &a%amount% алм.&f."
+  paid: "%prefix% &fТы получил награду за &a%target%&f: &a%amount% алм.&f."
+  no-diamonds: "%prefix% &fНе хватает алмазов."
+  bad-number: "%prefix% &fСумма должна быть числом."
+  bad-target: "%prefix% &fИгрок не найден онлайн."
